@@ -1,0 +1,11 @@
+1. Install de following components in all nodes
+    -Docker 18.06.1.ce-3.el7
+    -kobeadm
+    -kubelet
+    -kubectl
+2. Change the fallowing configurations
+    -set the name to master and nodes, change the original name in /etc/hostname
+    -set a new line in /etc/hosts 127.0.1.1 $HOSTNAME (Replace for real hostname)
+    -disable swap ($ swapoff -a)
+
+     kubeadm join 10.0.2.15:6443 --token 3kz8u9.fzobt7v6k1aovx0g --discovery-token-ca-cert-hash sha256:bb7b684287b1ba172013046bf0950a6b96b0ccb87bd01134440ec283b0924002

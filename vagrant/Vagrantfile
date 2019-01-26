@@ -1,0 +1,31 @@
+Vagrant.configure("2") do |config|
+  config.vm.network "private_network", type: "dhcp"
+  config.vm.box = "centos/7"
+  config.vm.define "master" do |node|
+    config.vm.provider :virtualbox do |vb|
+      vb.name = "master"
+      vb.memory = 2048
+      vb.cpus = 2
+    end
+    node.vm.provision "shell",  env: {"HOST_NAME" => "kubemaster"},
+      inline: "sudo chmod +x /vagrant/scripts/**/*.sh && /vagrant/scripts/common/hostname.sh"
+    node.vm.provision :reload
+    node.vm.provision "shell",
+      inline: "sudo chmod +x /vagrant/scripts/**/*.sh && /vagrant/scripts/common/initialsetup.sh"
+  end
+  (1..2).each do |i|
+    config.vm.define "node-#{i}" do |node|
+      config.vm.provider :virtualbox do |vb|
+        vb.name = "node-#{i}"
+        vb.memory = 2048
+        vb.cpus = 2
+      end
+      node.vm.provision "shell",  env: {"HOST_NAME" => "kubenode#{i}"},
+        inline: "sudo chmod +x /vagrant/scripts/**/*.sh && /vagrant/scripts/common/hostname.sh"
+      node.vm.provision :reload
+      node.vm.provision "shell",
+        inline: "sudo chmod +x /vagrant/scripts/**/*.sh && /vagrant/scripts/common/initialsetup.sh"
+  
+    end
+  end
+end

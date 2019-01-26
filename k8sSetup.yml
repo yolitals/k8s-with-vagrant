@@ -1,0 +1,49 @@
+---
+- hosts: localhost
+  pre_tasks:
+  - name: Up local environment
+    command: vagrant up
+    args:
+      chdir: vagrant/
+    delegate_to: localhost
+
+  - name: Reload local environment
+    command: vagrant reload
+    args:
+      chdir: vagrant/
+    delegate_to: localhost
+    tags:
+      - reload
+
+  - name: Get master Ip
+    command: vagrant ssh -c "hostname -I | cut -d' ' -f2 | grep -oE '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b'" master
+    register: master_ip_output
+    args:
+      chdir: vagrant/
+    tags:
+      - master
+    
+  - debug: var=master_ip_output.stdout
+    tags:
+      - master
+  - set_fact: snap={{ master_ip_output.stdout }}   
+    tags:
+      - master   
+
+  - name: Add master to inventory
+    lineinfile:
+      path: vagrant/inventory
+      line: "{{ snap }}"
+      insertbefore: '[nodes]'
+    tags:
+      - master
+
+  tasks:
+  - name: test master
+    command: docker ps
+    delegate_to: "{{item}}"
+    loop: "{{groups['all']}}"
+    become: yes
+    tags:
+      - master
+    

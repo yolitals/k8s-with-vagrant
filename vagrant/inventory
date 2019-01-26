@@ -1,0 +1,8 @@
+[all:vars]
+ansible_connection=ssh
+ansible_user=vagrant
+ansible_ssh_pass=vagrant
+
+[master]
+172.28.128.27
+[nodes]
